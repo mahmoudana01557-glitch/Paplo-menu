@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منيو كافيه بابلو</title>
 
+    <!-- خط Cairo العربي من Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- مكتبة أيقونات Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -60,7 +64,8 @@
         <div class="max-w-xl mx-auto">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3.5">
-                    <div onclick="openAdminModal()" title="اضغط لتعديل اللوجو وإدارة المنيو" class="w-14 h-14 rounded-2xl bg-espresso text-cream flex items-center justify-center shadow-md shrink-0 overflow-hidden cursor-pointer border-2 border-sand relative">
+                    <!-- مربع اللوجو -->
+                    <div class="w-14 h-14 rounded-2xl bg-espresso text-cream flex items-center justify-center shadow-md shrink-0 overflow-hidden border-2 border-sand relative">
                         <img id="header-logo-img" src="" alt="Logo" class="hidden w-full h-full object-cover" onerror="this.classList.add('hidden'); document.getElementById('header-logo-icon').classList.remove('hidden');">
                         <i id="header-logo-icon" class="ph-fill ph-coffee text-3xl text-caramel"></i>
                     </div>
@@ -76,12 +81,14 @@
                     </div>
                 </div>
 
+                <!-- شارة رقم الطاولة -->
                 <button onclick="openCartDrawer()" id="header-table-badge" class="hidden items-center gap-1.5 bg-sand hover:bg-sand/80 px-3 py-2 rounded-xl text-xs font-bold text-espresso transition">
                     <i class="ph-bold ph-armchair text-caramel"></i>
                     <span id="header-table-text">طاولة --</span>
                 </button>
             </div>
 
+            <!-- شريط البحث الفوري -->
             <div class="relative">
                 <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-muted text-lg"></i>
                 <input type="text" id="search-input" oninput="handleSearchInput(this.value)" placeholder="ابحث عن مشروبك المفضل، لاتيه، موهيتو..." class="w-full bg-cream border border-sand focus:border-caramel focus:bg-white focus:outline-none rounded-2xl py-2.5 pr-10 pl-9 text-sm placeholder:text-muted/70 transition">
@@ -108,6 +115,7 @@
 
         <div id="menu-grid" class="grid grid-cols-1 gap-3.5"></div>
 
+        <!-- حالة عدم وجود نتائج -->
         <div id="empty-state" class="hidden flex-col items-center justify-center py-14 text-center">
             <div class="w-16 h-16 rounded-full bg-sand flex items-center justify-center mb-3 text-muted">
                 <i class="ph ph-coffee-bean text-3xl"></i>
@@ -118,14 +126,10 @@
         </div>
     </main>
 
-    <!-- ==================== الفوتر وزر إدارة المنيو ==================== -->
+    <!-- ==================== الفوتر ==================== -->
     <footer class="max-w-xl mx-auto px-4 mt-12 mb-6 text-center">
         <div class="border-t border-sand pt-6 flex flex-col items-center gap-2">
             <p class="text-xs text-muted">الأسعار شاملة الضريبة • نتمنى لكم وقتاً ممتعاً</p>
-            <button onclick="openAdminModal()" class="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-espresso bg-sand/60 hover:bg-sand px-3.5 py-1.5 rounded-full transition mt-1">
-                <i class="ph-bold ph-gear-six text-caramel"></i>
-                <span>إدارة المنيو</span>
-            </button>
         </div>
     </footer>
 
@@ -171,10 +175,164 @@
                 </div>
             </div>
 
-            <div id="modal-size-section" class="mb-5">
+            <!-- الإضافات ونوع الحليب -->
+            <div id="modal-addons-section" class="mb-5">
                 <h4 class="text-sm font-bold text-espresso mb-2.5 flex items-center justify-between">
-                    <span>اختر الحجم</span>
-                    <span class="text-[11px] font-normal text-muted bg-cream px-2 py-0.5 rounded-md">مطلوب</span>
+                    <span>إضافات ونوع الحليب</span>
+                    <span class="text-[11px] font-normal text-muted">اختياري</span>
+                </h4>
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="حليب شوفان" data-extra="20" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">حليب شوفان (Oat Milk)</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+20 ج.م</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="إكسترا شوت إسبريسو" data-extra="15" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">إكسترا شوت إسبريسو</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+15 ج.م</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="صوص كراميل" data-extra="10" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">إضافة صوص كراميل</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+10 ج.م</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ملاحظات السكر والثلج -->
+            <div class="mb-2">
+                <label class="block text-sm font-bold text-espresso mb-1.5">ملاحظات السكر والثلج</label>
+                <input type="text" id="modal-item-notes" placeholder="مثال: سكر خفيف، بدون ثلج..." class="w-full bg-cream border border-sand focus:border-caramel focus:outline-none rounded-xl px-3.5 py-2.5 text-sm">
+            </div>
+        </div>
+
+        <!-- زر الإضافة للسلة والكمية -->
+        <div class="p-4 bg-white border-t border-sand flex items-center gap-3">
+            <div class="flex items-center bg-cream rounded-xl p-1 border border-sand">
+                <button onclick="changeModalQty(1)" class="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-espresso font-bold active:scale-95">
+                    <i class="ph-bold ph-plus"></i>
+                </button>
+                <span id="modal-qty-val" class="w-9 text-center font-extrabold text-base">1</span>
+                <button onclick="changeModalQty(-1)" class="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-espresso font-bold active:scale-95">
+                    <i class="ph-bold ph-minus"></i>
+                </button>
+            </div>
+
+            <button onclick="confirmAddToCart()" class="flex-1 bg-caramel hover:bg-caramelDark text-white font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-between transition active:scale-[0.99]">
+                <span>أضف للطلب</span>
+                <span class="bg-black/15 px-2.5 py-1 rounded-lg text-sm font-extrabold"><span id="modal-total-btn-price">0</span> ج.م</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== نافذة سلة الطلبات ==================== -->
+    <div id="cart-backdrop" onclick="closeCartDrawer()" class="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="cart-drawer" class="fixed bottom-0 inset-x-0 z-50 max-w-xl mx-auto bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92vh] flex flex-col">
+        <div class="p-4 border-b border-sand flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-caramel/15 text-caramel flex items-center justify-center">
+                    <i class="ph-fill ph-shopping-bag text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-espresso">طلبك الحالي</h3>
+                    <p class="text-[11px] text-muted">راجع الأصناف وأدخل رقم طاولتك</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="clearCart()" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg font-bold transition">إفراغ</button>
+                <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-espresso">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4 overflow-y-auto flex-1 space-y-4">
+            <!-- إدخال رقم الطاولة -->
+            <div class="bg-cream p-3.5 rounded-2xl border border-sand flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <i class="ph-duotone ph-armchair text-2xl text-caramel"></i>
+                    <div>
+                        <label for="table-number-input" class="block text-xs font-extrabold text-espresso">رقم الطاولة (اختياري)</label>
+                        <span class="text-[11px] text-muted">موجود على الملصق أمامك</span>
+                    </div>
+                </div>
+                <input type="text" id="table-number-input" placeholder="مثال: 5" oninput="updateTableBadge(this.value)" class="w-24 text-center font-extrabold text-base bg-white border-2 border-sand focus:border-caramel focus:outline-none rounded-xl py-2 px-2">
+            </div>
+
+            <!-- قائمة أصناف السلة -->
+            <div id="cart-items-container" class="space-y-2.5"></div>
+
+            <!-- ملخص الفاتورة -->
+            <div class="bg-cream/60 p-3.5 rounded-2xl border border-sand space-y-2 text-sm">
+                <div class="flex justify-between text-muted">
+                    <span>المجموع الفرعي</span>
+                    <span class="font-bold"><span id="drawer-subtotal">0</span> ج.م</span>
+                </div>
+                <div class="border-t border-sand pt-2 flex justify-between text-base font-extrabold text-espresso">
+                    <span>الإجمالي النهائي</span>
+                    <span class="text-caramel"><span id="drawer-total">0</span> ج.م</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار إرسال الطلب -->
+        <div class="p-4 bg-white border-t border-sand space-y-2.5">
+            <button onclick="sendOrderWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-[0.99]">
+                <i class="ph-fill ph-whatsapp-logo text-xl"></i>
+                <span>إرسال الطلب عبر واتساب</span>
+            </button>
+            <button onclick="showWaiterScreen()" class="w-full bg-espresso hover:bg-espresso/90 text-cream font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm transition">
+                <i class="ph-bold ph-receipt"></i>
+                <span>عرض ملخص الطلب للويتر</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== نافذة عرض الطلب للويتر ==================== -->
+    <div id="waiter-modal" class="fixed inset-0 bg-espresso/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative">
+            <button onclick="closeWaiterScreen()" class="absolute left-4 top-4 w-8 h-8 rounded-full bg-cream flex items-center justify-center text-espresso">
+                <i class="ph-bold ph-x"></i>
+            </button>
+            <div class="w-12 h-12 rounded-2xl bg-caramel/15 text-caramel flex items-center justify-center mx-auto mb-2">
+                <i class="ph-fill ph-receipt text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-extrabold text-espresso">ملخص الطلب للويتر</h3>
+            <p id="waiter-table-display" class="text-sm font-bold text-caramel mt-0.5 mb-4">طاولة: غير محدد</p>
+
+            <div id="waiter-items-list" class="bg-cream rounded-2xl p-4 text-right space-y-2.5 max-h-64 overflow-y-auto mb-4 border border-sand"></div>
+
+            <div class="flex justify-between items-center bg-espresso text-cream px-4 py-3 rounded-xl font-extrabold mb-4">
+                <span>الإجمالي المطلوب</span>
+                <span class="text-caramel text-lg"><span id="waiter-total-price">0</span> ج.م</span>
+            </div>
+
+            <button onclick="closeWaiterScreen()" class="w-full py-2.5 rounded-xl bg-sand text-espresso font-bold text-sm">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ==================== إشعار منبثق (Toast) ==================== -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-espresso text-cream px-4 py-2.5 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 -translate-y-3">
+        <i class="ph-fill ph-check-circle text-caramel text-base"></i>
+        <span id="toast-msg">تمت الإضافة للسلة</span>
+    </div>
+
+    <!-- ==================== منطق التطبيق ==================== -->
+    <script>
+        const DEFAULT_CATEGORIES = [
+            { id: "all", name: "الكل", icon: "ph-squares-four" },
+            { id: "hot", name: "قهوة ساخنة", icon: "ph-coffee" },
+            { id: "iced", name: "قهوة باردة", icon: "ph-brandy" },
+            { id: "signature", name: "مشروبات مميزة", icon: "ph-sparkle" },
+            { id: "mojito", name: "موهيتو", icon: "ph-citrus" },
+   ed-md">مطلوب</span>
                 </h4>
                 <div class="grid grid-cols-2 gap-2.5">
                     <label class="cursor-pointer">
