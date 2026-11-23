@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منيو كافيه بابلو</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FAF7F2',
+                        espresso: '#2C1E16',
+                        caramel: '#C67C4E',
+                        caramelDark: '#A8643A',
+                        sand: '#EFE9E0',
+                        muted: '#7D6E65'
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #FAF7F2;
+            color: #2C1E16;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 18px -2px rgba(44, 30, 22, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-cream text-espresso antialiased pb-28">
+
+    <!-- ==================== الهيدر العلوي ==================== -->
+    <header class="bg-white pt-5 pb-4 px-4 rounded-b-3xl shadow-sm border-b border-sand">
+        <div class="max-w-xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3.5">
+                    <div onclick="openAdminModal()" title="اضغط لتعديل اللوجو وإدارة المنيو" class="w-14 h-14 rounded-2xl bg-espresso text-cream flex items-center justify-center shadow-md shrink-0 overflow-hidden cursor-pointer border-2 border-sand relative">
+                        <img id="header-logo-img" src="" alt="Logo" class="hidden w-full h-full object-cover" onerror="this.classList.add('hidden'); document.getElementById('header-logo-icon').classList.remove('hidden');">
+                        <i id="header-logo-icon" class="ph-fill ph-coffee text-3xl text-caramel"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 id="cafe-name-display" class="text-xl font-extrabold text-espresso tracking-tight">كافيه بابلو</h1>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                مفتوح
+                            </span>
+                        </div>
+                        <p id="cafe-tagline-display" class="text-xs text-muted mt-0.5">قهوة مختصة • مخبوزات طازجة يومياً</p>
+                    </div>
+                </div>
+
+                <button onclick="openCartDrawer()" id="header-table-badge" class="hidden items-center gap-1.5 bg-sand hover:bg-sand/80 px-3 py-2 rounded-xl text-xs font-bold text-espresso transition">
+                    <i class="ph-bold ph-armchair text-caramel"></i>
+                    <span id="header-table-text">طاولة --</span>
+                </button>
+            </div>
+
+            <div class="relative">
+                <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-muted text-lg"></i>
+                <input type="text" id="search-input" oninput="handleSearchInput(this.value)" placeholder="ابحث عن مشروبك المفضل، لاتيه، موهيتو..." class="w-full bg-cream border border-sand focus:border-caramel focus:bg-white focus:outline-none rounded-2xl py-2.5 pr-10 pl-9 text-sm placeholder:text-muted/70 transition">
+                <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 text-muted hover:text-espresso p-1">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== شريط الأقسام الثابت ==================== -->
+    <nav class="sticky top-0 z-30 bg-cream/95 backdrop-blur-md border-b border-sand py-3 px-4">
+        <div class="max-w-xl mx-auto">
+            <div id="category-tabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5"></div>
+        </div>
+    </nav>
+
+    <!-- ==================== قائمة الأصناف ==================== -->
+    <main class="max-w-xl mx-auto px-4 pt-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 id="current-category-title" class="text-lg font-extrabold text-espresso">جميع الأصناف</h2>
+            <span id="items-count-badge" class="text-xs font-bold text-muted bg-sand px-2.5 py-1 rounded-full">0 أصناف</span>
+        </div>
+
+        <div id="menu-grid" class="grid grid-cols-1 gap-3.5"></div>
+
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-14 text-center">
+            <div class="w-16 h-16 rounded-full bg-sand flex items-center justify-center mb-3 text-muted">
+                <i class="ph ph-coffee-bean text-3xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-espresso mb-1">لم نجد ما تبحث عنه</h3>
+            <p class="text-xs text-muted mb-4">جرب البحث بكلمة أخرى أو تصفح جميع الأقسام</p>
+            <button onclick="resetFilters()" class="px-4 py-2 bg-espresso text-cream text-xs font-bold rounded-xl">عرض كل المنيو</button>
+        </div>
+    </main>
+
+    <!-- ==================== الفوتر وزر إدارة المنيو ==================== -->
+    <footer class="max-w-xl mx-auto px-4 mt-12 mb-6 text-center">
+        <div class="border-t border-sand pt-6 flex flex-col items-center gap-2">
+            <p class="text-xs text-muted">الأسعار شاملة الضريبة • نتمنى لكم وقتاً ممتعاً</p>
+            <button onclick="openAdminModal()" class="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-espresso bg-sand/60 hover:bg-sand px-3.5 py-1.5 rounded-full transition mt-1">
+                <i class="ph-bold ph-gear-six text-caramel"></i>
+                <span>إدارة المنيو</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ==================== شريط سلة الطلبات العائم ==================== -->
+    <div id="floating-cart-bar" class="fixed bottom-4 inset-x-4 z-40 max-w-xl mx-auto transition-all duration-300 translate-y-28 opacity-0 pointer-events-none">
+        <button onclick="openCartDrawer()" class="w-full bg-espresso hover:bg-espresso/95 text-cream p-3.5 rounded-2xl shadow-xl flex items-center justify-between transition active:scale-[0.99]">
+            <div class="flex items-center gap-3">
+                <div class="bg-caramel text-white w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm">
+                    <span id="cart-bar-count">0</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-[11px] text-cream/75">عرض سلة الطلبات</p>
+                    <p class="text-sm font-bold">مراجعة وتأكيد الطلب</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-xl">
+                <span id="cart-bar-total" class="font-extrabold text-base text-caramel">0</span>
+                <span class="text-xs font-bold">ج.م</span>
+                <i class="ph-bold ph-caret-left text-sm mr-1"></i>
+            </div>
+        </button>
+    </div>
+
+    <!-- ==================== نافذة تخصيص المشروب (Bottom Sheet) ==================== -->
+    <div id="item-modal-backdrop" onclick="closeItemModal()" class="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="item-modal-sheet" class="fixed bottom-0 inset-x-0 z-50 max-w-xl mx-auto bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col">
+        <div class="w-full flex justify-center pt-3 pb-1" onclick="closeItemModal()">
+            <div class="w-12 h-1.5 bg-sand rounded-full"></div>
+        </div>
+
+        <div class="p-5 overflow-y-auto flex-1">
+            <div class="flex gap-4 items-start mb-4">
+                <img id="modal-item-img" src="" alt="" class="w-24 h-24 rounded-2xl object-cover bg-sand shrink-0 border border-sand">
+                <div class="flex-1">
+                    <div class="flex items-start justify-between gap-2">
+                        <h3 id="modal-item-name" class="text-lg font-extrabold text-espresso leading-snug">اسم المشروب</h3>
+                        <button onclick="closeItemModal()" class="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-espresso shrink-0">
+                            <i class="ph-bold ph-x"></i>
+                        </button>
+                    </div>
+                    <p id="modal-item-desc" class="text-xs text-muted mt-1 leading-relaxed">وصف المشروب</p>
+                    <p class="text-base font-extrabold text-caramel mt-2"><span id="modal-item-base-price">0</span> ج.م</p>
+                </div>
+            </div>
+
+            <div id="modal-size-section" class="mb-5">
+                <h4 class="text-sm font-bold text-espresso mb-2.5 flex items-center justify-between">
+                    <span>اختر الحجم</span>
+                    <span class="text-[11px] font-normal text-muted bg-cream px-2 py-0.5 rounded-md">مطلوب</span>
+                </h4>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="item-size" value="وسط" data-extra="0" class="peer sr-only" checked onchange="updateModalPrice()">
+                        <div class="p-3 rounded-xl border-2 border-sand peer-checked:border-caramel peer-checked:bg-caramel/5 flex items-center justify-between transition">
+                            <span class="text-sm font-bold">وسط</span>
+                            <span class="text-xs text-muted font-bold">الأساسي</span>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="item-size" value="كبير" data-extra="15" class="peer sr-only" onchange="updateModalPrice()">
+                        <div class="p-3 rounded-xl border-2 border-sand peer-checked:border-caramel peer-checked:bg-caramel/5 flex items-center justify-between transition">
+                            <span class="text-sm font-bold">كبير</span>
+                            <span class="text-xs text-caramel font-bold">+15 ج.م</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="modal-addons-section" class="mb-5">
+                <h4 class="text-sm font-bold text-espresso mb-2.5 flex items-center justify-between">
+                    <span>إضافات ونوع الحليب</span>
+                    <span class="text-[11px] font-normal text-muted">اختياري</span>
+                </h4>
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="حليب شوفان" data-extra="20" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">حليب شوفان (Oat Milk)</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+20 ج.م</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="إكسترا شوت إسبريسو" data-extra="15" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">إكسترا شوت إسبريسو</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+15 ج.م</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-sand hover:bg-cream/50 cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="صوص كراميل" data-extra="10" class="addon-checkbox w-4 h-4 accent-caramel rounded" onchange="updateModalPrice()">
+                            <span class="text-sm font-medium">إضافة صوص كراميل</span>
+                        </div>
+                        <span class="text-xs font-bold text-caramel">+10 ج.م</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="block text-sm font-bold text-espresso mb-1.5">ملاحظات السكر والثلج</label>
+                <input type="text" id="modal-item-notes" placeholder="مثال: سكر خفيف، بدون ثلج..." class="w-full bg-cream border border-sand focus:border-caramel focus:outline-none rounded-xl px-3.5 py-2.5 text-sm">
+            </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-sand flex items-center gap-3">
+            <div class="flex items-center bg-cream rounded-xl p-1 border border-sand">
+                <button onclick="changeModalQty(1)" class="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-espresso font-bold active:scale-95">
+                    <i class="ph-bold ph-plus"></i>
+                </button>
+                <span id="modal-qty-val" class="w-9 text-center font-extrabold text-base">1</span>
+                <button onclick="changeModalQty(-1)" class="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-espresso font-bold active:scale-95">
+                    <i class="ph-bold ph-minus"></i>
+                </button>
+            </div>
+
+            <button onclick="confirmAddToCart()" class="flex-1 bg-caramel hover:bg-caramelDark text-white font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-between transition active:scale-[0.99]">
+                <span>أضف للطلب</span>
+                <span class="bg-black/15 px-2.5 py-1 rounded-lg text-sm font-extrabold"><span id="modal-total-btn-price">0</span> ج.م</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== نافذة سلة الطلبات ==================== -->
+    <div id="cart-backdrop" onclick="closeCartDrawer()" class="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="cart-drawer" class="fixed bottom-0 inset-x-0 z-50 max-w-xl mx-auto bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92vh] flex flex-col">
+        <div class="p-4 border-b border-sand flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-caramel/15 text-caramel flex items-center justify-center">
+                    <i class="ph-fill ph-shopping-bag text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-espresso">طلبك الحالي</h3>
+                    <p class="text-[11px] text-muted">راجع الأصناف وأدخل رقم طاولتك</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="clearCart()" class="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg font-bold transition">إفراغ</button>
+                <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-espresso">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4 overflow-y-auto flex-1 space-y-4">
+            <div class="bg-cream p-3.5 rounded-2xl border border-sand flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <i class="ph-duotone ph-armchair text-2xl text-caramel"></i>
+                    <div>
+                        <label for="table-number-input" class="block text-xs font-extrabold text-espresso">رقم الطاولة (اختياري)</label>
+                        <span class="text-[11px] text-muted">موجود على الملصق أمامك</span>
+                    </div>
+                </div>
+                <input type="text" id="table-number-input" placeholder="مثال: 5" oninput="updateTableBadge(this.value)" class="w-24 text-center font-extrabold text-base bg-white border-2 border-sand focus:border-caramel focus:outline-none rounded-xl py-2 px-2">
+            </div>
+
+            <div id="cart-items-container" class="space-y-2.5"></div>
+
+            <div class="bg-cream/60 p-3.5 rounded-2xl border border-sand space-y-2 text-sm">
+                <div class="flex justify-between text-muted">
+                    <span>المجموع الفرعي</span>
+                    <span class="font-bold"><span id="drawer-subtotal">0</span> ج.م</span>
+                </div>
+                <div class="border-t border-sand pt-2 flex justify-between text-base font-extrabold text-espresso">
+                    <span>الإجمالي النهائي</span>
+                    <span class="text-caramel"><span id="drawer-total">0</span> ج.م</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-sand space-y-2.5">
+            <button onclick="sendOrderWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-[0.99]">
+                <i class="ph-fill ph-whatsapp-logo text-xl"></i>
+                <span>إرسال الطلب عبر واتساب</span>
+            </button>
+            <button onclick="showWaiterScreen()" class="w-full bg-espresso hover:bg-espresso/90 text-cream font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm transition">
+                <i class="ph-bold ph-receipt"></i>
+                <span>عرض ملخص الطلب للويتر</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== نافذة عرض الطلب للويتر ==================== -->
+    <div id="waiter-modal" class="fixed inset-0 bg-espresso/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative">
+            <button onclick="closeWaiterScreen()" class="absolute left-4 top-4 w-8 h-8 rounded-full bg-cream flex items-center justify-center text-espresso">
+                <i class="ph-bold ph-x"></i>
+            </button>
+            <div class="w-12 h-12 rounded-2xl bg-caramel/15 text-caramel flex items-center justify-center mx-auto mb-2">
+                <i class="ph-fill ph-receipt text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-extrabold text-espresso">ملخص الطلب للويتر</h3>
+            <p id="waiter-table-display" class="text-sm font-bold text-caramel mt-0.5 mb-4">طاولة: غير محدد</p>
+
+            <div id="waiter-items-list" class="bg-cream rounded-2xl p-4 text-right space-y-2.5 max-h-64 overflow-y-auto mb-4 border border-sand"></div>
+
+            <div class="flex justify-between items-center bg-espresso text-cream px-4 py-3 rounded-xl font-extrabold mb-4">
+                <span>الإجمالي المطلوب</span>
+                <span class="text-caramel text-lg"><span id="waiter-total-price">0</span> ج.م</span>
+            </div>
+
+            <button onclick="closeWaiterScreen()" class="w-full py-2.5 rounded-xl bg-sand text-espresso font-bold text-sm">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ==================== لوحة إدارة المنيو ==================== -->
+    <div id="admin-modal" class="fixed inset-0 bg-espresso/75 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 bg-espresso text-cream flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-sliders text-caramel text-xl"></i>
+                    <h3 class="font-bold text-base">إدارة المنيو واللوجو</h3>
+                </div>
+                <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-cream">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto flex-1 space-y-5">
+                <div class="bg-cream p-3.5 rounded-2xl border border-sand space-y-3">
+                    <h4 class="text-xs font-extrabold text-espresso">1. اللوجو وبيانات الكافيه</h4>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-espresso text-cream flex items-center justify-center overflow-hidden border border-caramel shrink-0">
+                            <img id="admin-logo-preview" src="" alt="معاينة اللوجو" class="hidden w-full h-full object-cover">
+                            <i id="admin-logo-icon-preview" class="ph-fill ph-coffee text-2xl text-caramel"></i>
+                        </div>
+                        <div class="flex-1 flex flex-wrap gap-2">
+                            <label class="cursor-pointer bg-caramel hover:bg-caramelDark text-white text-xs font-bold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 transition">
+                                <i class="ph-bold ph-upload-simple"></i>
+                                <span>رفع صورة اللوجو</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+                            </label>
+                            <button id="remove-logo-btn" onclick="resetLogoIcon()" class="hidden bg-white border border-sand text-xs font-bold px-3 py-2 rounded-xl text-muted hover:text-espresso">
+                                استعادة الأيقونة
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-muted mb-1">اسم الكافيه</label>
+                            <input type="text" id="admin-cafe-name" class="w-full bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-muted mb-1">رقم واتساب الطلبات</label>
+                            <input type="text" id="admin-whatsapp-num" placeholder="201000000000" dir="ltr" class="w-full bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold text-left">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-muted mb-1">الوصف المختصر</label>
+                            <input type="text" id="admin-cafe-tagline" class="w-full bg-white border border-sand rounded-xl px-3 py-2 text-xs">
+                        </div>
+                    </div>
+                    <button onclick="saveCafeSettings()" class="w-full bg-espresso text-cream text-xs font-bold py-2.5 rounded-xl">
+                        حفظ بيانات الكافيه واللوجو
+                    </button>
+                </div>
+
+                <div class="bg-cream p-3.5 rounded-2xl border border-sand space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-extrabold text-espresso">2. إدارة الأقسام (تصنيفات المنيو)</h4>
+                        <span class="text-[10px] text-muted">تظهر في الشريط وقائمة الإضافة</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-category-name" placeholder="اسم القسم الجديد (مثال: سموذي، ساندوتشات...)" class="flex-1 bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold focus:border-caramel focus:outline-none">
+                        <button onclick="addNewCategory()" class="bg-espresso hover:bg-espresso/90 text-cream text-xs font-bold px-3.5 py-2 rounded-xl shrink-0 transition">
+                            + إضافة قسم
+                        </button>
+                    </div>
+                    <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+
+                <div class="bg-cream p-3.5 rounded-2xl border border-sand space-y-2.5">
+                    <h4 class="text-xs font-extrabold text-espresso">3. إضافة صنف جديد للمنيو</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="new-item-name" placeholder="اسم المشروب أو الصنف *" class="col-span-2 bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold">
+
+                        <select id="new-item-cat" class="bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold"></select>
+
+                        <input type="number" id="new-item-price" placeholder="السعر (ج.م) *" class="bg-white border border-sand rounded-xl px-3 py-2 text-xs font-bold">
+
+                        <input type="text" id="new-item-desc" placeholder="وصف مختصر للمكونات (اختياري)" class="col-span-2 bg-white border border-sand rounded-xl px-3 py-2 text-xs">
+
+                        <div class="col-span-2 flex items-center justify-between bg-white border border-sand rounded-xl px-3 py-2">
+                            <div class="flex items-center gap-2">
+                                <img id="new-item-img-preview" src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=200&q=80" alt="معاينة" class="w-8 h-8 rounded-lg object-cover">
+                                <span class="text-[11px] font-bold text-muted">صورة الصنف</span>
+                            </div>
+                            <label class="cursor-pointer bg-sand/70 hover:bg-sand text-espresso text-[11px] font-bold px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1">
+                                <i class="ph-bold ph-camera"></i>
+                                <span>اختر صورة</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="handleNewItemImage(event)">
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="addNewMenuItem()" class="w-full bg-caramel hover:bg-caramelDark text-white text-xs font-bold py-2.5 rounded-xl shadow-sm transition">
+                        + إضافة الصنف للمنيو
+                    </button>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-extrabold text-espresso">4. تعديل الأسعار وحذف الأصناف</h4>
+                        <button onclick="resetDefaultMenu()" class="text-[11px] text-red-600 underline font-bold">استعادة الافتراضي</button>
+                    </div>
+                    <div id="admin-items-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-200 space-y-2">
+                    <div class="flex items-center gap-2 text-emerald-900">
+                        <i class="ph-fill ph-rocket-launch text-lg text-emerald-700"></i>
+                        <h4 class="text-xs font-extrabold">نشر التعديلات على موقعك (Netlify)</h4>
+                    </div>
+                    <p class="text-[11px] text-emerald-800 leading-relaxed">
+                        بعد الانتهاء من تعديل اللوجو والأقسام والأسعار، اضغط هنا لنسخ بيانات المنيو الحالية أو افتح الموقع مباشرة في تبويب جديد.
+                    </p>
+                    <button onclick="exportFinalCode()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition">
+                        <i class="ph-bold ph-copy"></i>
+                        <span>نسخ بيانات التعديلات</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== إشعار منبثق (Toast) ==================== -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-espresso text-cream px-4 py-2.5 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 -translate-y-3">
+        <i class="ph-fill ph-check-circle text-caramel text-base"></i>
+        <span id="toast-msg">تمت الإضافة للسلة</span>
+    </div>
+
+    <!-- ==================== منطق التطبيق ==================== -->
+    <script>
+        const DEFAULT_CATEGORIES = [
+            { id: "all", name: "الكل", icon: "ph-squares-four" },
+            { id: "hot", name: "قهوة ساخنة", icon: "ph-coffee" },
+            { id: "iced", name: "قهوة باردة", icon: "ph-brandy" },
+            { id: "signature", name: "مشروبات مميزة", icon: "ph-sparkle" },
+            { id: "mojito", name: "موهيتو", icon: "ph-citrus" },
+            { id: "milkshake", name: "ميلك شيك", icon: "ph-ice-cream" },
+            { id: "fresh", name: "عصائر فريش", icon: "ph-orange-slice" },
+            { id: "tea", name: "شاي وأعشاب", icon: "ph-leaf" },
+            { id: "dessert", name: "حلويات", icon: "ph-cookie" }
+        ];
+
+        const DEFAULT_MENU_ITEMS = [
+            { id: 101, name: "إسبريسو دبل", category: "hot", price: 45, desc: "جرعة إسبريسو مركزة من حبوب أرابيكا محمصة بعناية بقوام كريمي غني.", badge: "", img: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 102, name: "كابتشينو كلاسيك", category: "hot", price: 65, desc: "إسبريسو متوازن مع حليب مبخر وفوم حليب ناعم ورشة كاكاو.", badge: "الأكثر مبيعاً", img: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 103, name: "لاتيه فانيليا دافئ", category: "hot", price: 70, desc: "حليب مخملي دافئ ممزوج بالإسبريسو ونكهة الفانيليا الطبيعية.", badge: "", img: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 104, name: "فلات وايت", category: "hot", price: 72, desc: "دبل ريستريتو مع طبقة رقيقة وناعمة جداً من الحليب المبخر.", badge: "", img: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 105, name: "أمريكانو", category: "hot", price: 55, desc: "إسبريسو غني مخفف بالماء الساخن لمذاق قهوة نقي ومتوازن.", badge: "", img: "https://images.unsplash.com/photo-1551030173-122aabc4489c?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 106, name: "هوت شوكليت بلجيكي", category: "hot", price: 78, desc: "شوكولاتة داكنة فاخرة مذابة في حليب طازج مع قوام غني.", badge: "", img: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 201, name: "سبانش لاتيه مثلج", category: "iced", price: 85, desc: "مزيج الإسبريسو البارد والحليب المكثف المحلى فوق مكعبات الثلج.", badge: "الأكثر مبيعاً", img: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 202, name: "آيس لاتيه", category: "iced", price: 72, desc: "قهوة إسبريسو باردة مع حليب طازج وثلج منعش.", badge: "", img: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 203, name: "آيس وايت موكا", category: "iced", price: 88, desc: "إسبريسو مثلج مع صوص الشوكولاتة البيضاء وحليب بارد.", badge: "", img: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 204, name: "آيس كاراميل ماكياتو", category: "iced", price: 86, desc: "حليب مثلج وفانيليا مع شوت إسبريسو وخطوط صوص الكراميل.", badge: "", img: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 205, name: "كولد برو", category: "iced", price: 75, desc: "قهوة منقوعة على البارد لمدة 18 ساعة لنعومة وحموضة منخفضة.", badge: "", img: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 301, name: "بابلو سيجنتشر", category: "signature", price: 95, desc: "خلطة بابلو الخاصة بكريمة الفانيليا والإسبريسو ولمسة كراميل محمص.", badge: "توصية الشيف", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 302, name: "بستاشيو لاتيه", category: "signature", price: 98, desc: "كريمة الفستق الحلبي الغنية مع حليب طازج وشوت إسبريسو.", badge: "جديد", img: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 303, name: "كوكيز آند كريم كوفي", category: "signature", price: 92, desc: "قهوة باردة مع قطع بسكويت الكوكيز المقرمشة وفوم كريمي.", badge: "", img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 401, name: "موهيتو نعناع وليمون", category: "mojito", price: 68, desc: "أوراق نعناع طازجة وعصير ليمون طبيعي مع صودا فوارة وثلج مجروش.", badge: "منعش", img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 402, name: "بلو لاجون موهيتو", category: "mojito", price: 74, desc: "انتعاش البلو كوراساو مع الليمون والنعناع وصودا باردة.", badge: "", img: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 403, name: "موهيتو فراولة", category: "mojito", price: 72, desc: "نكهة الفراولة الصيفية مع النعناع الطازج والليمون والصودا.", badge: "", img: "https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 501, name: "ميلك شيك شوكولاتة", category: "milkshake", price: 82, desc: "آيس كريم شوكولاتة غني مخفوق بالحليب الطازج مع كريمة مخفوقة.", badge: "", img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 502, name: "ميلك شيك لوتس", category: "milkshake", price: 88, desc: "بسكويت اللوتس المكرمل مع آيس كريم فانيليا وحليب بارد.", badge: "الأكثر مبيعاً", img: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 503, name: "ميلك شيك فراولة", category: "milkshake", price: 80, desc: "فراولة طبيعية مع آيس كريم وحليب بارد بقوام ناعم ومنعش.", badge: "", img: "https://images.unsplash.com/photo-1579954115563-e72bf1381629?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 601, name: "عصير برتقال فريش", category: "fresh", price: 55, desc: "برتقال طازج معصور لحظياً بدون سكر مضاف.", badge: "", img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 602, name: "ليمون بالنعناع فريش", category: "fresh", price: 52, desc: "ليمون طازج مع أوراق نعناع وثلج لقوام منعش.", badge: "منعش", img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 603, name: "مانجو فريش", category: "fresh", price: 65, desc: "مانجو طبيعية بقوام غني ومذاق صيفي مميز.", badge: "", img: "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 701, name: "شاي بالنعناع", category: "tea", price: 35, desc: "شاي أحمر كلاسيكي مع نعناع بلدي طازج.", badge: "", img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 702, name: "شاي كرك بالهيل", category: "tea", price: 48, desc: "شاي مطهو بالحليب والهيل والزعفران لقوام دافئ وغني.", badge: "", img: "https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 703, name: "يانسون دافئ", category: "tea", price: 35, desc: "مشروب أعشاب دافئ ومهدئ يقدم ساخناً.", badge: "", img: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 801, name: "تشيز كيك لوتس", category: "dessert", price: 90, desc: "طبقة بسكويت مقرمشة مع تشيز كيك كريمي وصوص اللوتس.", badge: "الأكثر مبيعاً", img: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 802, name: "براونيز شوكولاتة", category: "dessert", price: 75, desc: "كيك براونيز غني بالشوكولاتة الداكنة بطراوة مثالية.", badge: "", img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: 803, name: "مولتن كيك", category: "dessert", price: 95, desc: "كيك شوكولاتة دافئ بقلب شوكولاتة سائلة.", badge: "توصية الشيف", img: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?auto=format&fit=crop&w=400&q=80", available: true }
+        ];
+
+        const FALLBACK_IMG = "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80";
+
+        let categories = JSON.parse(localStorage.getItem('pablo_categories_v1')) || JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+        let menuItems = JSON.parse(localStorage.getItem('pablo_menu_v1')) || JSON.parse(JSON.stringify(DEFAULT_MENU_ITEMS));
+        let cafeSettings = JSON.parse(localStorage.getItem('pablo_settings_v1')) || {
+            name: "كافيه بابلو",
+            tagline: "قهوة مختصة • مخبوزات طازجة يومياً",
+            whatsapp: "201000000000",
+            logoImage: ""
+        };
+
+        let cart = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let currentModalItem = null;
+        let currentModalQty = 1;
+        let pendingNewItemImage = 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=200&q=80';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyCafeSettings();
+            renderCategoryTabs();
+            renderMenu();
+            updateCartUI();
+        });
+
+        function applyCafeSettings() {
+            document.getElementById('cafe-name-display').textContent = cafeSettings.name || 'كافيه بابلو';
+            document.getElementById('cafe-tagline-display').textContent = cafeSettings.tagline || 'قهوة مختصة';
+            document.title = `منيو ${cafeSettings.name || 'كافيه بابلو'}`;
+
+            const headerImg = document.getElementById('header-logo-img');
+            const headerIcon = document.getElementById('header-logo-icon');
+
+            if (cafeSettings.logoImage) {
+                headerImg.src = cafeSettings.logoImage;
+                headerImg.classList.remove('hidden');
+                headerIcon.classList.add('hidden');
+            } else {
+                headerImg.classList.add('hidden');
+                headerIcon.classList.remove('hidden');
+            }
+        }
+
+        function renderCategoryTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = categories.map(cat => {
+                const isActive = activeCategory === cat.id;
+                const iconClass = cat.icon || 'ph-tag';
+                return `
+                    <button
+                        onclick="selectCategory('${cat.id}')"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
+                            isActive
+                            ? 'bg-espresso text-cream shadow-sm'
+                            : 'bg-white text-muted hover:text-espresso border border-sand'
+                        }"
+                    >
+                        <i class="ph-bold ${iconClass} ${isActive ? 'text-caramel' : 'text-muted'} text-base"></i>
+                        <span>${cat.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(catId) {
+            activeCategory = catId;
+            renderCategoryTabs();
+            renderMenu();
+        }
+
+        function handleSearchInput(val) {
+            searchQuery = val.trim();
+            document.getElementById('clear-search-btn').classList.toggle('hidden', !searchQuery);
+            renderMenu();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('search-input');
+            input.value = '';
+            searchQuery = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            renderMenu();
+        }
+
+        function resetFilters() {
+            activeCategory = 'all';
+            clearSearch();
+            renderCategoryTabs();
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const grid = document.getElementById('menu-grid');
+            const emptyState = document.getElementById('empty-state');
+            const titleEl = document.getElementById('current-category-title');
+            const countBadge = document.getElementById('items-count-badge');
+
+            const catObj = categories.find(c => c.id === activeCategory) || { name: 'جميع الأصناف' };
+            titleEl.textContent = searchQuery
+                ? `نتائج البحث عن "${searchQuery}"`
+                : (activeCategory === 'all' ? 'جميع الأصناف' : catObj.name);
+
+            const filtered = menuItems.filter(item => {
+                const matchesCat = activeCategory === 'all' || item.category === activeCategory;
+                const matchesSearch = !searchQuery ||
+                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (item.desc && item.desc.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesCat && matchesSearch;
+            });
+
+            countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? 'صنف' : 'أصناف'}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            grid.innerHTML = filtered.map(item => {
+                const safeImg = item.img || FALLBACK_IMG;
+                const isAvailable = item.available !== false;
+                return `
+                    <div onclick="${isAvailable ? `openItemModal(${item.id})` : `showToast('هذا الصنف غير متوفر حالياً')`}" class="bg-white rounded-2xl p-3 border border-sand card-shadow flex gap-3.5 items-center transition ${
+                        isAvailable
+                        ? 'cursor-pointer hover:border-caramel/50 active:scale-[0.99]'
+                        : 'opacity-60 grayscale-[45%] cursor-not-allowed bg-cream/70'
+                    }">
+                        <div class="relative shrink-0">
+                            <img
+                                src="${safeImg}"
+                                alt="${item.name}"
+                                loading="lazy"
+                                onerror="this.onerror=null; this.src='${FALLBACK_IMG}'"
+                                class="w-24 h-24 rounded-xl object-cover bg-sand border border-sand/60"
+                            >
+                            ${!isAvailable ? `<span class="absolute inset-0 bg-espresso/55 rounded-xl flex items-center justify-center text-[11px] font-extrabold text-white">غير متوفر</span>` : ''}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="text-sm font-extrabold text-espresso leading-snug truncate">${item.name}</h3>
+                                ${!isAvailable
+                                    ? `<span class="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full shrink-0">غير متوفر</span>`
+                                    : (item.badge ? `<span class="text-[10px] font-bold bg-caramel/15 text-caramelDark px-2 py-0.5 rounded-full shrink-0">${item.badge}</span>` : '')
+                                }
+                            </div>
+                            <p class="text-xs text-muted line-clamp-2 mt-1 leading-relaxed">${item.desc || ''}</p>
+                            <div class="flex items-center justify-between mt-2.5">
+                                <span class="text-sm font-extrabold ${isAvailable ? 'text-caramel' : 'text-muted line-through'}">${item.price} <span class="text-[11px] font-bold">ج.م</span></span>
+                                ${isAvailable
+                                    ? `<span class="inline-flex items-center gap-1 text-[11px] font-bold bg-cream text-espresso border border-sand px-2.5 py-1 rounded-lg">
+                                        <i class="ph-bold ph-plus text-caramel"></i>
+                                        <span>إضافة</span>
+                                    </span>`
+                                    : `<span class="inline-flex items-center gap-1 text-[11px] font-bold bg-red-50 text-red-700 border border-red-200 px-2.5 py-1 rounded-lg">
+                                        <span>نفذت الكمية</span>
+                                    </span>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openItemModal(itemId) {
+            const item = menuItems.find(m => m.id === itemId);
+            if (!item) return;
+            if (item.available === false) {
+                showToast('هذا الصنف غير متوفر حالياً');
+                return;
+            }
+
+            currentModalItem = item;
+            currentModalQty = 1;
+
+            document.getElementById('modal-item-img').src = item.img || FALLBACK_IMG;
+            document.getElementById('modal-item-name').textContent = item.name;
+            document.getElementById('modal-item-desc').textContent = item.desc || '';
+            document.getElementById('modal-item-base-price').textContent = item.price;
+            document.getElementById('modal-qty-val').textContent = '1';
+            document.getElementById('modal-item-notes').value = '';
+
+            const isDessert = item.category === 'dessert';
+            document.getElementById('modal-size-section').classList.toggle('hidden', isDessert);
+            document.getElementById('modal-addons-section').classList.toggle('hidden', isDessert);
+
+            const radios = document.querySelectorAll('input[name="item-size"]');
+            if (radios.length > 0) radios[0].checked = true;
+            document.querySelectorAll('.addon-checkbox').forEach(cb => cb.checked = false);
+
+            updateModalPrice();
+
+            const backdrop = document.getElementById('item-modal-backdrop');
+            const sheet = document.getElementById('item-modal-sheet');
+            backdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            });
+        }
+
+        function closeItemModal() {
+            const backdrop = document.getElementById('item-modal-backdrop');
+            const sheet = document.getElementById('item-modal-sheet');
+            backdrop.classList.add('opacity-0');
+            sheet.classList.add('translate-y-full');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                currentModalItem = null;
+            }, 300);
+        }
+
+        function changeModalQty(delta) {
+            currentModalQty = Math.max(1, currentModalQty + delta);
+            document.getElementById('modal-qty-val').textContent = currentModalQty;
+            updateModalPrice();
+        }
+
+        function calculateModalUnitPrice() {
+            if (!currentModalItem) return 0;
+            let unitPrice = Number(currentModalItem.price) || 0;
+
+            if (currentModalItem.category !== 'dessert') {
+                const selectedSize = document.querySelector('input[name="item-size"]:checked');
+                if (selectedSize) {
+                    unitPrice += Number(selectedSize.dataset.extra || 0);
+                }
+                document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+                    unitPrice += Number(cb.dataset.extra || 0);
+                });
+            }
+            return unitPrice;
+        }
+
+        function updateModalPrice() {
+            const total = calculateModalUnitPrice() * currentModalQty;
+            document.getElementById('modal-total-btn-price').textContent = total;
+        }
+
+        function confirmAddToCart() {
+            if (!currentModalItem) return;
+
+            const unitPrice = calculateModalUnitPrice();
+            const isDessert = currentModalItem.category === 'dessert';
+            const sizeVal = !isDessert ? (document.querySelector('input[name="item-size"]:checked')?.value || 'وسط') : '';
+            const addons = !isDessert
+                ? Array.from(document.querySelectorAll('.addon-checkbox:checked')).map(cb => cb.value)
+                : [];
+            const notes = document.getElementById('modal-item-notes').value.trim();
+
+            const optionsSummary = [
+                sizeVal ? `حجم: ${sizeVal}` : '',
+                addons.length ? addons.join(' + ') : '',
+                notes ? `ملاحظة: ${notes}` : ''
+            ].filter(Boolean).join(' • ');
+
+            cart.push({
+                cartId: Date.now() + Math.random(),
+                itemId: currentModalItem.id,
+                name: currentModalItem.name,
+                unitPrice: unitPrice,
+                qty: currentModalQty,
+                options: optionsSummary
+            });
+
+            updateCartUI();
+            closeItemModal();
+            showToast(`تمت إضافة "${currentModalItem.name}" للسلة`);
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+            const floatingBar = document.getElementById('floating-cart-bar');
+            document.getElementById('cart-bar-count').textContent = totalQty;
+            document.getElementById('cart-bar-total').textContent = totalPrice;
+
+            if (totalQty > 0) {
+                floatingBar.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
+            } else {
+                floatingBar.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
+            }
+
+            document.getElementById('drawer-subtotal').textContent = totalPrice;
+            document.getElementById('drawer-total').textContent = totalPrice;
+
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-muted text-xs">سلة الطلبات فارغة حالياً</div>`;
+                return;
+            }
+
+            container.innerHTML = cart.map((entry, index) => `
+                <div class="bg-cream/80 border border-sand rounded-2xl p-3 flex items-center justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-extrabold text-espresso truncate">${entry.name}</h4>
+                        ${entry.options ? `<p class="text-[11px] text-muted mt-0.5 leading-snug">${entry.options}</p>` : ''}
+                        <p class="text-xs font-bold text-caramel mt-1">${entry.unitPrice * entry.qty} ج.م</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-white border border-sand rounded-xl p-1 shrink-0">
+                        <button onclick="changeCartItemQty(${index}, 1)" class="w-7 h-7 rounded-lg bg-cream flex items-center justify-center text-espresso font-bold text-xs">
+                            <i class="ph-bold ph-plus"></i>
+                        </button>
+                        <span class="w-6 text-center text-xs font-extrabold">${entry.qty}</span>
+                        <button onclick="changeCartItemQty(${index}, -1)" class="w-7 h-7 rounded-lg bg-cream flex items-center justify-center text-espresso font-bold text-xs">
+                            <i class="ph-bold ph-minus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function changeCartItemQty(index, delta) {
+            if (!cart[index]) return;
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+            if (cart.length === 0) {
+                closeCartDrawer();
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+            closeCartDrawer();
+            showToast('تم إفراغ سلة الطلبات');
+        }
+
+        function updateTableBadge(val) {
+            const clean = val.trim();
+            const badge = document.getElementById('header-table-badge');
+            const textEl = document.getElementById('header-table-text');
+            if (clean) {
+                textEl.textContent = `طاولة ${clean}`;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        function openCartDrawer() {
+            if (cart.length === 0) return;
+            updateCartUI();
+            const backdrop = document.getElementById('cart-backdrop');
+            const drawer = document.getElementById('cart-drawer');
+            backdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                drawer.classList.remove('translate-y-full');
+            });
+        }
+
+        function closeCartDrawer() {
+            const backdrop = document.getElementById('cart-backdrop');
+            const drawer = document.getElementById('cart-drawer');
+            backdrop.classList.add('opacity-0');
+            drawer.classList.add('translate-y-full');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        function sendOrderWhatsApp() {
+            if (cart.length === 0) {
+                showToast('السلة فارغة، أضف أصنافاً أولاً');
+                return;
+            }
+
+            const phone = (cafeSettings.whatsapp || '').replace(/[^0-9]/g, '');
+            if (!phone) {
+                showToast('يرجى ضبط رقم الواتساب من إدارة المنيو');
+                return;
+            }
+
+            const tableNum = document.getElementById('table-number-input').value.trim();
+            const total = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+            let lines = [
+                `*طلب جديد - ${cafeSettings.name || 'كافيه بابلو'}*`,
+                tableNum ? `*رقم الطاولة:* ${tableNum}` : '*النوع:* طلب منيو',
+                '----------------------------'
+            ];
+
+            cart.forEach(item => {
+                lines.push(`• (${item.qty}x) *${item.name}* — ${item.unitPrice * item.qty} ج.م`);
+                if (item.options) {
+                    lines.push(`  _${item.options}_`);
+                }
+            });
+
+            lines.push('----------------------------');
+            lines.push(`*الإجمالي: ${total} ج.م*`);
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function showWaiterScreen() {
+            if (cart.length === 0) return;
+            const tableNum = document.getElementById('table-number-input').value.trim();
+            const total = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+            document.getElementById('waiter-table-display').textContent = tableNum ? `طاولة رقم: ${tableNum}` : 'طاولة: غير محدد';
+            document.getElementById('waiter-total-price').textContent = total;
+            document.getElementById('waiter-items-list').innerHTML = cart.map(item => `
+                <div class="border-b border-sand last:border-none pb-2 last:pb-0">
+                    <div class="flex justify-between text-xs font-extrabold text-espresso">
+                        <span>${item.qty} × ${item.name}</span>
+                        <span>${item.unitPrice * item.qty} ج.م</span>
+                    </div>
+                    ${item.options ? `<p class="text-[11px] text-muted mt-0.5">${item.options}</p>` : ''}
+                </div>
+            `).join('');
+
+            const modal = document.getElementById('waiter-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeWaiterScreen() {
+            const modal = document.getElementById('waiter-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-cafe-name').value = cafeSettings.name || '';
+            document.getElementById('admin-cafe-tagline').value = cafeSettings.tagline || '';
+            document.getElementById('admin-whatsapp-num').value = cafeSettings.whatsapp || '';
+
+            updateAdminLogoPreview();
+            renderAdminCategories();
+            renderAdminItemsList();
+
+            const modal = document.getElementById('admin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function updateAdminLogoPreview() {
+            const imgEl = document.getElementById('admin-logo-preview');
+            const iconEl = document.getElementById('admin-logo-icon-preview');
+            const removeBtn = document.getElementById('remove-logo-btn');
+
+            if (cafeSettings.logoImage) {
+                imgEl.src = cafeSettings.logoImage;
+                imgEl.classList.remove('hidden');
+                iconEl.classList.add('hidden');
+                removeBtn.classList.remove('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+                iconEl.classList.remove('hidden');
+                removeBtn.classList.add('hidden');
+            }
+        }
+
+        function compressImageFile(file, maxWidth, quality, callback) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            compressImageFile(file, 300, 0.8, (dataUrl) => {
+                cafeSettings.logoImage = dataUrl;
+                updateAdminLogoPreview();
+                showToast('تم تحميل صورة اللوجو، اضغط حفظ لتثبيتها');
+            });
+        }
+
+        function resetLogoIcon() {
+            cafeSettings.logoImage = '';
+            updateAdminLogoPreview();
+            applyCafeSettings();
+            localStorage.setItem('pablo_settings_v1', JSON.stringify(cafeSettings));
+            showToast('تمت استعادة أيقونة الكافيه الافتراضية');
+        }
+
+        function saveCafeSettings() {
+            cafeSettings.name = document.getElementById('admin-cafe-name').value.trim() || 'كافيه بابلو';
+            cafeSettings.tagline = document.getElementById('admin-cafe-tagline').value.trim();
+            cafeSettings.whatsapp = document.getElementById('admin-whatsapp-num').value.trim();
+
+            localStorage.setItem('pablo_settings_v1', JSON.stringify(cafeSettings));
+            applyCafeSettings();
+            showToast('تم حفظ بيانات الكافيه واللوجو');
+        }
+
+        function renderAdminCategories() {
+            const listContainer = document.getElementById('admin-categories-list');
+            const selectDropdown = document.getElementById('new-item-cat');
+            const editableCats = categories.filter(c => c.id !== 'all');
+
+            selectDropdown.innerHTML = editableCats.map(cat => `
+                <option value="${cat.id}">${cat.name}</option>
+            `).join('');
+
+            listContainer.innerHTML = editableCats.map(cat => `
+                <span class="inline-flex items-center gap-1.5 bg-white border border-sand px-2.5 py-1 rounded-xl text-[11px] font-bold text-espresso">
+                    <span>${cat.name}</span>
+                    <button onclick="deleteCategory('${cat.id}')" class="text-red-500 hover:text-red-700 flex items-center" title="حذف القسم">
+                        <i class="ph-bold ph-x text-xs"></i>
+                    </button>
+                </span>
+            `).join('');
+        }
+
+        function addNewCategory() {
+            const input = document.getElementById('new-category-name');
+            const name = input.value.trim();
+            if (!name) {
+                showToast('اكتب اسم القسم أولاً');
+                return;
+            }
+
+            const newCat = {
+                id: 'cat_' + Date.now(),
+                name: name,
+                icon: 'ph-tag'
+            };
+
+            categories.push(newCat);
+            localStorage.setItem('pablo_categories_v1', JSON.stringify(categories));
+            input.value = '';
+
+            renderAdminCategories();
+            renderCategoryTabs();
+            document.getElementById('new-item-cat').value = newCat.id;
+            showToast(`تمت إضافة قسم "${name}"`);
+        }
+
+        function deleteCategory(catId) {
+            const editableCats = categories.filter(c => c.id !== 'all');
+            if (editableCats.length <= 1) {
+                showToast('يجب الإبقاء على قسم واحد على الأقل');
+                return;
+            }
+
+            categories = categories.filter(c => c.id !== catId);
+            localStorage.setItem('pablo_categories_v1', JSON.stringify(categories));
+
+            if (activeCategory === catId) {
+                activeCategory = 'all';
+            }
+
+            renderAdminCategories();
+            renderCategoryTabs();
+            renderMenu();
+            showToast('تم حذف القسم');
+        }
+
+        function handleNewItemImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            compressImageFile(file, 450, 0.78, (dataUrl) => {
+                pendingNewItemImage = dataUrl;
+                document.getElementById('new-item-img-preview').src = dataUrl;
+            });
+        }
+
+        function addNewMenuItem() {
+            const nameInput = document.getElementById('new-item-name');
+            const catSelect = document.getElementById('new-item-cat');
+            const priceInput = document.getElementById('new-item-price');
+            const descInput = document.getElementById('new-item-desc');
+
+            const name = nameInput.value.trim();
+            const price = Number(priceInput.value);
+            const category = catSelect.value;
+            const desc = descInput.value.trim();
+
+            if (!name || !price || price <= 0) {
+                showToast('أدخل اسم الصنف وسعراً صحيحاً');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                category: category,
+                price: price,
+                desc: desc || 'صنف محضر بعناية من منيو الكافيه.',
+                badge: 'جديد',
+                available: true,
+                img: pendingNewItemImage || FALLBACK_IMG
+            };
+
+            menuItems.unshift(newItem);
+            saveMenuToStorage();
+
+            nameInput.value = '';
+            priceInput.value = '';
+            descInput.value = '';
+            pendingNewItemImage = 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=200&q=80';
+            document.getElementById('new-item-img-preview').src = pendingNewItemImage;
+
+            renderAdminItemsList();
+            renderMenu();
+            showToast(`تمت إضافة "${name}" للمنيو`);
+        }
+
+        function renderAdminItemsList() {
+            const container = document.getElementById('admin-items-list');
+            container.innerHTML = menuItems.map(item => {
+                const isAvailable = item.available !== false;
+                return `
+                <div class="bg-cream border border-sand rounded-xl p-2.5 flex items-center justify-between gap-2 ${!isAvailable ? 'opacity-75' : ''}">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <img src="${item.img || FALLBACK_IMG}" alt="${item.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK_IMG}'" class="w-10 h-10 rounded-lg object-cover shrink-0">
+                        <div class="min-w-0">
+                            <span class="block text-xs font-bold text-espresso truncate">${item.name}</span>
+                            <span class="text-[10px] font-bold ${isAvailable ? 'text-emerald-700' : 'text-red-600'}">${isAvailable ? 'متاح للطلب' : 'غير متوفر'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button
+                            onclick="toggleItemAvailability(${item.id})"
+                            class="px-2 py-1 rounded-lg text-[10px] font-extrabold border transition ${
+                                isAvailable
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                            }"
+                            title="تبديل حالة التوفر"
+                        >
+                            ${isAvailable ? 'متاح' : 'غير متوفر'}
+                        </button>
+                        <input
+                            type="number"
+                            value="${item.price}"
+                            onchange="updateItemPrice(${item.id}, this.value)"
+                            class="w-16 text-center text-xs font-extrabold bg-white border border-sand rounded-lg py-1"
+                        >
+                        <span class="text-[10px] font-bold text-muted">ج.م</span>
+                        <button onclick="deleteMenuItem(${item.id})" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition" title="حذف الصنف">
+                            <i class="ph-bold ph-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function toggleItemAvailability(itemId) {
+            const target = menuItems.find(m => m.id === itemId);
+            if (!target) return;
+            target.available = target.available === false ? true : false;
+            saveMenuToStorage();
+            renderAdminItemsList();
+            renderMenu();
+            showToast(target.available ? `تم تعيين "${target.name}" كمتاح` : `تم تعيين "${target.name}" كغير متوفر`);
+        }
+
+        function updateItemPrice(itemId, newPrice) {
+            const val = Number(newPrice);
+            if (!val || val <= 0) return;
+            const target = menuItems.find(m => m.id === itemId);
+            if (target) {
+                target.price = val;
+                saveMenuToStorage();
+                renderMenu();
+                showToast('تم تحديث السعر');
+            }
+        }
+
+        function deleteMenuItem(itemId) {
+            menuItems = menuItems.filter(m => m.id !== itemId);
+            saveMenuToStorage();
+            renderAdminItemsList();
+            renderMenu();
+            showToast('تم حذف الصنف');
+        }
+
+        function resetDefaultMenu() {
+            categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+            menuItems = JSON.parse(JSON.stringify(DEFAULT_MENU_ITEMS));
+            localStorage.setItem('pablo_categories_v1', JSON.stringify(categories));
+            saveMenuToStorage();
+            activeCategory = 'all';
+            renderCategoryTabs();
+            renderAdminCategories();
+            renderAdminItemsList();
+            renderMenu();
+            showToast('تمت استعادة المنيو والأقسام الافتراضية');
+        }
+
+        function saveMenuToStorage() {
+            localStorage.setItem('pablo_menu_v1', JSON.stringify(menuItems));
+        }
+
+        function exportFinalCode() {
+            try {
+                const payload = JSON.stringify({
+                    settings: cafeSettings,
+                    categories: categories,
+                    menuItems: menuItems
+                }, null, 2);
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(payload).then(() => {
+                        showToast('تم نسخ بيانات التعديلات');
+                    }).catch(() => {});
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = payload;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showToast('تم نسخ بيانات التعديلات');
+                }
+            } catch (err) {
+                showToast('تعذر النسخ، حاول مرة أخرى');
+            }
+        }
+
+        let toastTimeout = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = msg;
+
+            toast.classList.remove('opacity-0', '-translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-3');
+            }, 2400);
+        }
+    </script>
+</body>
+</html>
